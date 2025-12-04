@@ -1,0 +1,118 @@
+_format_version: "3.0"
+_transform: true
+
+services:
+  # Wallet Service for user-friendly routes
+  - name: wallet-service-users
+    url: http://wallet-app:8081/api/v1/wallets   
+    routes:
+      # Create user account
+      - name: users-create
+        paths:
+          - /users
+        strip_path: true
+        methods:
+          - POST
+          - OPTIONS
+  
+  # Wallet Service for deposit operations
+  - name: wallet-service-deposit
+    url: http://wallet-app:8081/api/v1/wallets/deposit #/api/v1/wallets/deposit → the actual path in your backend service. kong will forwad to it 
+    routes:
+      # Deposit funds
+      - name: wallet-deposit
+        paths:
+          - /wallets/deposit  #what the client should call
+        strip_path: true
+        methods:
+          - POST
+          - OPTIONS
+  
+  # Wallet Service for withdraw operations
+  - name: wallet-service-withdraw
+    url: http://wallet-app:8081/api/v1/wallets/withdraw
+    routes:
+      # Withdraw funds
+      - name: wallet-withdraw
+        paths:
+          - /wallets/withdraw
+        strip_path: true
+        methods:
+          - POST
+          - OPTIONS
+  
+  # Wallet Service for transfer operations
+  - name: wallet-service-transfer
+    url: http://wallet-app:8081/api/v1/wallets/transfer
+    routes:
+      # Transfer between users
+      - name: wallet-transfer
+        paths:
+          - /wallets/transfer
+        strip_path: true
+        methods:
+          - POST
+          - OPTIONS
+  
+  # Wallet Service for balance operations
+  - name: wallet-service-balance
+    url: http://wallet-app:8081/api/v1
+    routes:
+      # View wallet balance & transaction history
+      - name: wallet-balance
+        paths:
+          - "/wallets/"
+        strip_path: false
+        methods:
+          - GET
+          - OPTIONS
+
+  # Wallet Service for health check
+  - name: wallet-service-health
+    url: http://wallet-app:8081/api/v1/health
+    routes:
+      # Health check endpoint
+      - name: health-check
+        paths:
+          - /health
+        strip_path: true
+        methods:
+          - GET
+          - OPTIONS
+
+# Global rate limiting plugin
+
+#Rate limiting is a control mechanism used in APIs 
+#(and web services in general) to limit the number of requests a
+# client can make within a certain period of time. This is extremely important in
+# fintech or any high-traffic application to prevent abuse, overload, or accidental crashes.
+
+plugins:
+  - name: rate-limiting
+    config:
+      minute: 300   #A client can make up to 300 requests per minute.
+      hour: 10000 # And up to 10,000 requests per hour.
+      policy: local #Rate limiting is enforced locally in the Kong instance, not shared globally.
+      fault_tolerant: true #If the plugin fails, it won’t block requests (safer for production).
+      hide_client_headers: false
+  - name: cors
+    config:
+      origins:
+        - "*"
+      methods:
+        - GET
+        - HEAD
+        - PUT
+        - PATCH
+        - POST
+        - DELETE
+        - OPTIONS
+        - TRACE
+        - CONNECT
+      headers:
+        - "*"
+      exposed_headers:
+        - "*"
+      credentials: true
+      max_age: 3600
+      preflight_continue: false
