@@ -143,7 +143,7 @@ redis-check: ## Check Redis cache status
 	@docker exec redis_cache redis-cli KEYS "*" | head -10
 
 # =============================================================================
-# QUICK START COMMANDS
+# QUICK START COMMANDS ughuhug
 # =============================================================================
 
 .PHONY: dev
