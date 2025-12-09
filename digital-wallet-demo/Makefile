@@ -137,7 +137,7 @@ health: ## Check health of all services
 	@curl -s http://localhost:8000 || echo "❌ Kong gateway not responding"
 
 .PHONY: redis-check
-redis-check: ## Check Redis cache status
+redis-check: ## Check Redis cache statusjedejdeljdedj
 	@echo "📝 Checking Redis cache..."
 	@docker exec redis_cache redis-cli ping || echo "❌ Redis not responding"
 	@docker exec redis_cache redis-cli KEYS "*" | head -10
