@@ -2,8 +2,8 @@ pipeline {
     agent {
     docker {
       image 'localhost:5000/devsecops-toolbox:latest'
-      registryUrl 'http://localhost:5000'
-      registryCredentialsId 'docker-registry-creds'
+      // registryUrl 'http://localhost:5000'
+      // registryCredentialsId 'docker-registry-creds'
       reuseNode true
       args '--entrypoint="" --network ci-network'
     }
