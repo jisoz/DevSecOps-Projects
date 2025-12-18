@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-
+// A simple login page for demonstration purposes
 function Login() {
   const [userId, setUserId] = useState('');
   const navigate = useNavigate();
