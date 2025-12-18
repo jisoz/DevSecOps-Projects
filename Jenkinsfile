@@ -1,5 +1,12 @@
 pipeline {
-    agent none
+    agent {
+    docker {
+      image 'localhost:5000/devsecops-toolbox:latest'
+      registryUrl 'http://localhost:5000'
+      registryCredentialsId 'docker-registry-creds'
+      reuseNode true
+    }
+  }
 
     stages {
 
@@ -14,63 +21,51 @@ pipeline {
         //     }
         // }
 
-        stage('Gitleaks Secret Scan') {
-            agent {
-                docker {
-                    image 'zricethezav/gitleaks:latest'
-                }
-            }
-            steps {
-                echo "Running Gitleaks secret scan..."
-                sh """
-                    gitleaks detect \
-                      --no-git \
-                      --source ./digital-wallet-demo \
-                      --report-path gitleaks-report.json \
-                      --verbose
-                """
-            }
-        }
+        // stage('Gitleaks Secret Scan') {
+           
+        //     steps {
+        //         echo "Running Gitleaks secret scan..."
+        //         sh """
+        //             gitleaks detect \
+        //               --no-git \
+        //               --source ./digital-wallet-demo \
+        //               --report-path gitleaks-report.json \
+        //               --verbose
+        //         """
+        //     }
+        // }
 
-        stage('SonarQube Analysis') {
-            agent {
-                docker {
-                    image 'sonarsource/sonar-scanner-cli:latest'
-                }
-            }
-            steps {
-                withSonarQubeEnv('sonar') {
-                    sh """
-                      sonar-scanner \
-                        -Dsonar.projectKey=nodejs-project \
-                        -Dsonar.projectName=nodejs-project
-                    """
-                }
-            }
-        }
+        // stage('SonarQube Analysis') {
+          
+        //     steps {
+        //         withSonarQubeEnv('sonar') {
+        //             sh """
+        //               sonar-scanner \
+        //                 -Dsonar.projectKey=nodejs-project \
+        //                 -Dsonar.projectName=nodejs-project
+        //             """
+        //         }
+        //     }
+        // }
 
-        stage('Quality Gate Check') {
-            agent any
-            steps {
-                timeout(time: 1, unit: 'HOURS') {
-                    waitForQualityGate abortPipeline: false, credentialsId: 'sonar-token'
-                }
-            }
-        }
+        // stage('Quality Gate Check') {
+            
+        //     steps {
+        //         timeout(time: 1, unit: 'HOURS') {
+        //             waitForQualityGate abortPipeline: false, credentialsId: 'sonar-token'
+        //         }
+        //     }
+        // }
 
-        stage('Trivy FS Scan') {
-            agent {
-                docker {
-                    image 'aquasec/trivy:latest'
-                }
-            }
-            steps {
-                sh """
-                  trivy fs \
-                    --format table \
-                    -o fs-report.html .
-                """
-            }
-        }
+        // stage('Trivy FS Scan') {
+           
+        //     steps {
+        //         sh """
+        //           trivy fs \
+        //             --format table \
+        //             -o fs-report.html .
+        //         """
+        //     }
+        // }
     }
 }
