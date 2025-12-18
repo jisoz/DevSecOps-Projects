@@ -3,16 +3,16 @@ pipeline {
 
     stages {
 
-        stage('Git Checkout') {
-            agent {
-                docker {
-                    image 'alpine/git:latest'
-                }
-            }
-            steps {
-                git branch: 'main', url: 'https://github.com/jisoz/DevSecOps-Projects.git'
-            }
-        }
+        // stage('Git Checkout') {
+        //     agent {
+        //         docker {
+        //             image 'alpine/git:latest'
+        //         }
+        //     }
+        //     steps {
+        //         git branch: 'main', url: 'https://github.com/jisoz/DevSecOps-Projects.git'
+        //     }
+        // }
 
         stage('Gitleaks Secret Scan') {
             agent {
