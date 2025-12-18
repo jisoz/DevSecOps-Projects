@@ -1,3 +1,22 @@
+ def SERVICES = [
+  [
+    name: 'frontend',
+    path: 'digital-wallet-demo/frontend/'
+  ],
+  [
+    name: 'backend_transactions',
+    path: 'services/transactions'
+  ],
+
+  [
+    name: 'backend_wallets',
+    path: 'services/wallets'
+  ]
+  // database intentionally excluded
+]
+
+
+
 pipeline {
   agent {
     docker {
@@ -14,22 +33,7 @@ pipeline {
     ECR_REPO = "${ECR_ACCOUNT}.dkr.ecr.${AWS_REGION}.amazonaws.com/${APP_NAME}"
   }
 
-  def SERVICES = [
-  [
-    name: 'frontend',
-    path: 'digital-wallet-demo/frontend/'
-  ],
-  [
-    name: 'backend_transactions',
-    path: 'services/transactions'
-  ],
-
-  [
-    name: 'backend_wallets',
-    path: 'services/wallets'
-  ]
-  // database intentionally excluded
-]
+ 
 
   stages {
 
