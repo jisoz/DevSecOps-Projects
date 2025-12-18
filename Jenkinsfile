@@ -14,6 +14,23 @@ pipeline {
     ECR_REPO = "${ECR_ACCOUNT}.dkr.ecr.${AWS_REGION}.amazonaws.com/${APP_NAME}"
   }
 
+  def SERVICES = [
+  [
+    name: 'frontend',
+    path: 'digital-wallet-demo/frontend/'
+  ],
+  [
+    name: 'backend_transactions',
+    path: 'services/transactions'
+  ],
+
+  [
+    name: 'backend_wallets',
+    path: 'services/wallets'
+  ]
+  // database intentionally excluded
+]
+
   stages {
 
     /* ---------------- ENV DETECTION ---------------- */
@@ -87,32 +104,47 @@ pipeline {
     }
 
     /* ---------------- BUILD & PUSH TO ECR ---------------- */
-  stage('Build & Push Image') {
+stage('Build & Push Images') {
   when { expression { env.ENV != 'pr' } }
   steps {
     withAWS(
       credentials: 'aws-cred',
-      region: "${AWS_REGION}",
+      region: AWS_REGION,
       role: "arn:aws:iam::${ECR_ACCOUNT}:role/JenkinsECRPushRole",
       roleSessionName: 'jenkins-ecr'
     ) {
-      sh '''
-        export DOCKER_CONFIG=/tmp/.docker
-        mkdir -p $DOCKER_CONFIG
+      script {
 
-        aws sts get-caller-identity
+        sh '''
+          export DOCKER_CONFIG=/tmp/.docker
+          mkdir -p $DOCKER_CONFIG
 
-        aws ecr get-login-password --region us-east-2 \
-        | docker login \
-          --username AWS \
-          --password-stdin 278584440734.dkr.ecr.us-east-2.amazonaws.com
+          aws ecr get-login-password --region $AWS_REGION \
+          | docker login \
+            --username AWS \
+            --password-stdin ${ECR_ACCOUNT}.dkr.ecr.${AWS_REGION}.amazonaws.com
+        '''
 
-        docker build -t $ECR_REPO:$IMAGE_TAG .
-        docker push $ECR_REPO:$IMAGE_TAG
-      '''
+        SERVICES.each { svc ->
+
+          def repo = "${ECR_ACCOUNT}.dkr.ecr.${AWS_REGION}.amazonaws.com/${svc.name}"
+
+          sh """
+            echo "🚀 Building ${svc.name}"
+
+            docker build \
+              -t ${repo}:${IMAGE_TAG} \
+              -f ${svc.path}/Dockerfile \
+              ${svc.path}
+
+            docker push ${repo}:${IMAGE_TAG}
+          """
+        }
+      }
     }
   }
 }
+
 
     /* ---------------- PROD PROMOTION ---------------- */
     stage('Promote Image (Prod)') {
