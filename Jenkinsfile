@@ -5,12 +5,12 @@
   ],
   [
     name: 'backend_transactions',
-    path: 'services/transactions'
+    path: 'digital-wallet-demo/services/transactions'
   ],
 
   [
     name: 'backend_wallets',
-    path: 'services/wallets'
+    path: 'digital-wallet-demoservices/wallets'
   ]
   // database intentionally excluded
 ]
