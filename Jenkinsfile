@@ -87,29 +87,32 @@ pipeline {
     }
 
     /* ---------------- BUILD & PUSH TO ECR ---------------- */
-    stage('Build & Push Image') {
-      when { expression { env.ENV != 'pr' } }
-      steps {
-        withAWS(
-          credentials: 'aws-cred',
-          region: "${AWS_REGION}",
-          role: "arn:aws:iam::${ECR_ACCOUNT}:role/JenkinsECRPushRole",
-          roleSessionName: 'jenkins-ecr'
-        ) {
-          sh '''
-            aws sts get-caller-identity
+  stage('Build & Push Image') {
+  when { expression { env.ENV != 'pr' } }
+  steps {
+    withAWS(
+      credentials: 'aws-cred',
+      region: "${AWS_REGION}",
+      role: "arn:aws:iam::${ECR_ACCOUNT}:role/JenkinsECRPushRole",
+      roleSessionName: 'jenkins-ecr'
+    ) {
+      sh '''
+        export DOCKER_CONFIG=/tmp/.docker
+        mkdir -p $DOCKER_CONFIG
 
-            aws ecr get-login-password --region us-east-2 \
-            | docker login \
-              --username AWS \
-              --password-stdin 278584440734.dkr.ecr.us-east-2.amazonaws.com
+        aws sts get-caller-identity
 
-            docker build -t $ECR_REPO:$IMAGE_TAG .
-            docker push $ECR_REPO:$IMAGE_TAG
-          '''
-        }
-      }
+        aws ecr get-login-password --region us-east-2 \
+        | docker login \
+          --username AWS \
+          --password-stdin 278584440734.dkr.ecr.us-east-2.amazonaws.com
+
+        docker build -t $ECR_REPO:$IMAGE_TAG .
+        docker push $ECR_REPO:$IMAGE_TAG
+      '''
     }
+  }
+}
 
     /* ---------------- PROD PROMOTION ---------------- */
     stage('Promote Image (Prod)') {
