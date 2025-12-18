@@ -48,15 +48,18 @@ pipeline {
             }
         }
 
-        stage('Trivy FS Scan') {
-           
-            steps {
-                sh """
-                  trivy fs \
-                    --format table \
-                    -o fs-report.html .
-                """
-            }
-        }
+      stage('Trivy FS Scan') {
+  steps {
+    sh '''
+      export TRIVY_CACHE_DIR=/tmp/trivy-cache
+      mkdir -p $TRIVY_CACHE_DIR
+
+      trivy fs \
+        --cache-dir $TRIVY_CACHE_DIR \
+        --format table \
+        -o fs-report.html .
+    '''
+  }
+}
     }
 }
