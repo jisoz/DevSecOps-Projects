@@ -10,7 +10,7 @@
 
   [
     name: 'backend_wallets',
-    path: 'digital-wallet-demoservices/wallets'
+    path: 'digital-wallet-demo/services/wallets'
   ]
   // database intentionally excluded
 ]
