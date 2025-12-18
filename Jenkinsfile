@@ -60,13 +60,12 @@ pipeline {
 
 
 
-    stage('Detect Changed Services') {
+   stage('Detect Changed Services') {
   steps {
     script {
 
       def changedFiles = []
 
-      // Jenkins-native change detection
       currentBuild.changeSets.each { changeSet ->
         changeSet.items.each { item ->
           item.affectedFiles.each { file ->
@@ -75,28 +74,23 @@ pipeline {
         }
       }
 
-      if (changedFiles.isEmpty()) {
-        echo "No changes detected (possible first build)"
-      } else {
-        echo "Changed files:"
-        changedFiles.each { echo " - ${it}" }
-      }
+      echo "Changed files:"
+      changedFiles.each { echo " - ${it}" }
 
-      def affected = []
+      def affectedServices = []
 
       SERVICES.each { svc ->
         if (changedFiles.any { it.startsWith(svc.path) }) {
-          affected << svc
+          affectedServices << svc.name
         }
       }
 
-      // Shared changes → build everything
-      if (affected.isEmpty() && !changedFiles.isEmpty()) {
-        echo "Shared files changed → building ALL services"
+      if (affectedServices.isEmpty() && !changedFiles.isEmpty()) {
+        echo "Shared files changed → build ALL services"
         env.BUILD_ALL = 'true'
       } else {
         env.BUILD_ALL = 'false'
-        env.AFFECTED_SERVICES = groovy.json.JsonOutput.toJson(affected)
+        env.AFFECTED_SERVICES = affectedServices.join(',')
       }
 
       echo "BUILD_ALL = ${env.BUILD_ALL}"
@@ -104,6 +98,7 @@ pipeline {
     }
   }
 }
+
 
 
     /* ---------------- SECURITY & QUALITY ---------------- */
@@ -174,23 +169,21 @@ stage('Build & Push Images') {
             --username AWS \
             --password-stdin ${ECR_ACCOUNT}.dkr.ecr.${AWS_REGION}.amazonaws.com
         '''
-
         def servicesToBuild = []
 
         if (env.BUILD_ALL == 'true') {
         servicesToBuild = SERVICES
         } else {
-        servicesToBuild = new groovy.json.JsonSlurper()
-            .parseText(env.AFFECTED_SERVICES)
+        def names = env.AFFECTED_SERVICES.split(',') as List
+        servicesToBuild = SERVICES.findAll { names.contains(it.name) }
         }
 
         servicesToBuild.each { svc ->
-
         def repo = "${ECR_ACCOUNT}.dkr.ecr.${AWS_REGION}.amazonaws.com/${svc.name}"
 
         sh """
             echo "🚀 Building ${svc.name}"
-           
+
             docker build \
             -t ${repo}:${IMAGE_TAG} \
             -f ${svc.path}/Dockerfile \
