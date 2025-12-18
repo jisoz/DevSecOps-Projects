@@ -91,7 +91,7 @@ pipeline {
       when { expression { env.ENV != 'pr' } }
       steps {
         withAWS(
-          credentials: 'aws-assume-role',
+          credentials: 'aws-cred',
           region: "${AWS_REGION}",
           role: "arn:aws:iam::${ECR_ACCOUNT}:role/JenkinsECRPushRole",
           roleSessionName: 'jenkins-ecr'
