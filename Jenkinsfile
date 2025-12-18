@@ -5,6 +5,7 @@ pipeline {
       registryUrl 'http://localhost:5000'
       registryCredentialsId 'docker-registry-creds'
       reuseNode true
+      args '--user root -v /var/run/docker.sock:/var/run/docker.sock'  
     }
   }
 
