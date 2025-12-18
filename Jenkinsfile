@@ -21,19 +21,19 @@ pipeline {
         //     }
         // }
 
-        // stage('Gitleaks Secret Scan') {
+        stage('Gitleaks Secret Scan') {
            
-        //     steps {
-        //         echo "Running Gitleaks secret scan..."
-        //         sh """
-        //             gitleaks detect \
-        //               --no-git \
-        //               --source ./digital-wallet-demo \
-        //               --report-path gitleaks-report.json \
-        //               --verbose
-        //         """
-        //     }
-        // }
+            steps {
+                echo "Running Gitleaks secret scan..."
+                sh """
+                    gitleaks detect \
+                      --no-git \
+                      --source ./digital-wallet-demo \
+                      --report-path gitleaks-report.json \
+                      --verbose
+                """
+            }
+        }
 
         // stage('SonarQube Analysis') {
           
