@@ -5,7 +5,7 @@ pipeline {
       registryUrl 'http://localhost:5000'
       registryCredentialsId 'docker-registry-creds'
       reuseNode true
-      args '--entrypoint=""'  
+      args '--entrypoint="" --network ci-network'
     }
   }
 
