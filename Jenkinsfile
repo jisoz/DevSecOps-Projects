@@ -58,6 +58,51 @@ pipeline {
       }
     }
 
+
+
+    stage('Detect Changed Services') {
+  steps {
+    script {
+      // Get changed files (PR vs branch, or last commit)
+      def changedFiles = sh(
+        script: """
+          if [ -n "$CHANGE_ID" ]; then
+            git diff --name-only origin/${env.CHANGE_TARGET}...HEAD
+          else
+            git diff --name-only HEAD~1 HEAD
+          fi
+        """,
+        returnStdout: true
+      ).trim().split("\n")
+
+      echo "Changed files:"
+      changedFiles.each { echo it }
+
+      // Detect affected services
+      def affected = []
+
+      SERVICES.each { svc ->
+        if (changedFiles.any { it.startsWith(svc.path) }) {
+          affected << svc
+        }
+      }
+
+      // If shared files changed → build everything
+      if (affected.isEmpty() && changedFiles.size() > 0) {
+        echo "Shared files changed, building ALL services"
+        env.BUILD_ALL = 'true'
+      } else {
+        env.BUILD_ALL = 'false'
+        env.AFFECTED_SERVICES = groovy.json.JsonOutput.toJson(affected)
+      }
+
+      echo "BUILD_ALL = ${env.BUILD_ALL}"
+      echo "AFFECTED_SERVICES = ${env.AFFECTED_SERVICES}"
+    }
+  }
+}
+
+
     /* ---------------- SECURITY & QUALITY ---------------- */
     stage('DevSecOps Scans') {
       when { expression { env.ENV != 'prod' } }
@@ -127,21 +172,31 @@ stage('Build & Push Images') {
             --password-stdin ${ECR_ACCOUNT}.dkr.ecr.${AWS_REGION}.amazonaws.com
         '''
 
-        SERVICES.each { svc ->
+        def servicesToBuild = []
 
-          def repo = "${ECR_ACCOUNT}.dkr.ecr.${AWS_REGION}.amazonaws.com/${svc.name}"
+        if (env.BUILD_ALL == 'true') {
+        servicesToBuild = SERVICES
+        } else {
+        servicesToBuild = new groovy.json.JsonSlurper()
+            .parseText(env.AFFECTED_SERVICES)
+        }
 
-          sh """
+        servicesToBuild.each { svc ->
+        def repo = "${ECR_ACCOUNT}.dkr.ecr.${AWS_REGION}.amazonaws.com/${svc.name}"
+
+        sh """
             echo "🚀 Building ${svc.name}"
+            export DOCKER_BUILDKIT=1
 
             docker build \
-              -t ${repo}:${IMAGE_TAG} \
-              -f ${svc.path}/Dockerfile \
-              ${svc.path}
+            -t ${repo}:${IMAGE_TAG} \
+            -f ${svc.path}/Dockerfile \
+            ${svc.path}
 
             docker push ${repo}:${IMAGE_TAG}
-          """
+        """
         }
+
       }
     }
   }
