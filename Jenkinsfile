@@ -190,8 +190,7 @@ stage('Build & Push Images') {
 
         sh """
             echo "🚀 Building ${svc.name}"
-            export DOCKER_BUILDKIT=1
-
+           
             docker build \
             -t ${repo}:${IMAGE_TAG} \
             -f ${svc.path}/Dockerfile \
