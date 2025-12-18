@@ -32,7 +32,8 @@ pipeline {
                     sh """
                       sonar-scanner \
                         -Dsonar.projectKey=nodejs-project \
-                        -Dsonar.projectName=nodejs-project
+                        -Dsonar.projectName=nodejs-project \
+                        -Dsonar.host.url=http://sonar:9000
                     """
                 }
             }
