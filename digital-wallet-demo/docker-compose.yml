@@ -1,6 +1,18 @@
 version: '3.8'
 
 services:
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+      no_cache: true
+    container_name: frontend_app
+    ports:
+      - "8080:80"
+    networks:
+      - microservices-network
+    restart: unless-stopped
   # Shared PostgreSQL Database
   postgres:
     image: postgres:15
