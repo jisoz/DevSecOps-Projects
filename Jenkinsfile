@@ -66,22 +66,21 @@ pipeline {
 
       def changedFiles = []
 
-      if (env.CHANGE_ID != null) {
-        // PR build
-        changedFiles = sh(
-          script: "git diff --name-only origin/${env.CHANGE_TARGET}...HEAD",
-          returnStdout: true
-        ).trim().split('\n')
-      } else {
-        // Normal branch build
-        changedFiles = sh(
-          script: "git diff --name-only HEAD~1 HEAD",
-          returnStdout: true
-        ).trim().split('\n')
+      // Jenkins-native change detection
+      currentBuild.changeSets.each { changeSet ->
+        changeSet.items.each { item ->
+          item.affectedFiles.each { file ->
+            changedFiles << file.path
+          }
+        }
       }
 
-      echo "Changed files:"
-      changedFiles.each { echo it }
+      if (changedFiles.isEmpty()) {
+        echo "No changes detected (possible first build)"
+      } else {
+        echo "Changed files:"
+        changedFiles.each { echo " - ${it}" }
+      }
 
       def affected = []
 
@@ -91,8 +90,9 @@ pipeline {
         }
       }
 
-      if (affected.isEmpty() && changedFiles.size() > 0) {
-        echo "Shared files changed → build ALL services"
+      // Shared changes → build everything
+      if (affected.isEmpty() && !changedFiles.isEmpty()) {
+        echo "Shared files changed → building ALL services"
         env.BUILD_ALL = 'true'
       } else {
         env.BUILD_ALL = 'false'
@@ -185,6 +185,7 @@ stage('Build & Push Images') {
         }
 
         servicesToBuild.each { svc ->
+
         def repo = "${ECR_ACCOUNT}.dkr.ecr.${AWS_REGION}.amazonaws.com/${svc.name}"
 
         sh """
@@ -199,6 +200,7 @@ stage('Build & Push Images') {
             docker push ${repo}:${IMAGE_TAG}
         """
         }
+
 
       }
     }
