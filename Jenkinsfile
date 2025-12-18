@@ -1,65 +1,65 @@
-pipeline {
-    agent {
-    docker {
-      image 'localhost:5000/devsecops-toolbox:latest'
-      // registryUrl 'http://localhost:5000'
-      // registryCredentialsId 'docker-registry-creds'
-      reuseNode true
-      args '--entrypoint="" --network ci-network'
-    }
-  }
+// pipeline {
+//     agent {
+//     docker {
+//       image 'localhost:5000/devsecops-toolbox:latest'
+//       // registryUrl 'http://localhost:5000'
+//       // registryCredentialsId 'docker-registry-creds'
+//       reuseNode true
+//       args '--entrypoint="" --network ci-network'
+//     }
+//   }
 
-    stages {
+//     stages {
 
-        stage('Gitleaks Secret Scan') {
+//         stage('Gitleaks Secret Scan') {
            
-            steps {
-                echo "Running Gitleaks secret scan..."
-                sh """
-                    gitleaks detect \
-                      --no-git \
-                      --source ./digital-wallet-demo \
-                      --report-path gitleaks-report.json \
-                      --verbose
-                """
-            }
-        }
+//             steps {
+//                 echo "Running Gitleaks secret scan..."
+//                 sh """
+//                     gitleaks detect \
+//                       --no-git \
+//                       --source ./digital-wallet-demo \
+//                       --report-path gitleaks-report.json \
+//                       --verbose
+//                 """
+//             }
+//         }
 
-        stage('SonarQube Analysis') {
+//         stage('SonarQube Analysis') {
           
-            steps {
-                withSonarQubeEnv('sonar') {
-                    sh """
-                      sonar-scanner \
-                        -Dsonar.projectKey=nodejs-project \
-                        -Dsonar.projectName=nodejs-project \
-                        -Dsonar.host.url=http://sonar:9000
-                    """
-                }
-            }
-        }
+//             steps {
+//                 withSonarQubeEnv('sonar') {
+//                     sh """
+//                       sonar-scanner \
+//                         -Dsonar.projectKey=nodejs-project \
+//                         -Dsonar.projectName=nodejs-project \
+//                         -Dsonar.host.url=http://sonar:9000
+//                     """
+//                 }
+//             }
+//         }
 
-        stage('Quality Gate Check') {
+//         stage('Quality Gate Check') {
             
-            steps {
-                timeout(time: 1, unit: 'HOURS') {
-                    waitForQualityGate abortPipeline: false, credentialsId: 'sonar-token'
-                }
-            }
-        }
+//             steps {
+//                 timeout(time: 1, unit: 'HOURS') {
+//                     waitForQualityGate abortPipeline: false, credentialsId: 'sonar-token'
+//                 }
+//             }
+//         }
 
-      stage('Trivy FS Scan') {
-  steps {
-    sh '''
-      export TRIVY_CACHE_DIR=/tmp/trivy-cache
-      mkdir -p $TRIVY_CACHE_DIR
+//       stage('Trivy FS Scan') {
+//   steps {
+//     sh '''
+//       export TRIVY_CACHE_DIR=/tmp/trivy-cache
+//       mkdir -p $TRIVY_CACHE_DIR
 
-      trivy fs \
-        --cache-dir $TRIVY_CACHE_DIR \
-        --format table \
-        -o fs-report.html .
-    '''
-  }
-}
-    }
-}
+//       trivy fs \
+//         --cache-dir $TRIVY_CACHE_DIR \
+//         --format table \
+//         -o fs-report.html .
+//     '''
+//   }
+// }
+//     }
+// }
