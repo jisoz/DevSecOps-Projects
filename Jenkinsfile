@@ -63,22 +63,26 @@ pipeline {
     stage('Detect Changed Services') {
   steps {
     script {
-      // Get changed files (PR vs branch, or last commit)
-      def changedFiles = sh(
-        script: """
-          if [ -n "$CHANGE_ID" ]; then
-            git diff --name-only origin/${env.CHANGE_TARGET}...HEAD
-          else
-            git diff --name-only HEAD~1 HEAD
-          fi
-        """,
-        returnStdout: true
-      ).trim().split("\n")
+
+      def changedFiles = []
+
+      if (env.CHANGE_ID != null) {
+        // PR build
+        changedFiles = sh(
+          script: "git diff --name-only origin/${env.CHANGE_TARGET}...HEAD",
+          returnStdout: true
+        ).trim().split('\n')
+      } else {
+        // Normal branch build
+        changedFiles = sh(
+          script: "git diff --name-only HEAD~1 HEAD",
+          returnStdout: true
+        ).trim().split('\n')
+      }
 
       echo "Changed files:"
       changedFiles.each { echo it }
 
-      // Detect affected services
       def affected = []
 
       SERVICES.each { svc ->
@@ -87,9 +91,8 @@ pipeline {
         }
       }
 
-      // If shared files changed → build everything
       if (affected.isEmpty() && changedFiles.size() > 0) {
-        echo "Shared files changed, building ALL services"
+        echo "Shared files changed → build ALL services"
         env.BUILD_ALL = 'true'
       } else {
         env.BUILD_ALL = 'false'
