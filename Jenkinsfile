@@ -22,7 +22,7 @@ pipeline {
     docker {
       image 'localhost:5000/devsecops-toolbox:latest'
       reuseNode true
-      args '--entrypoint="" --network ci-network -v /var/run/docker.sock:/var/run/docker.sock'
+      args ' --user root --entrypoint="" --network ci-network -v /var/run/docker.sock:/var/run/docker.sock'
     }
   }
 
