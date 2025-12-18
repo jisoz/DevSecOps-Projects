@@ -120,8 +120,6 @@ stage('Build & Push Images') {
       script {
 
         sh '''
-          export DOCKER_CONFIG=/tmp/.docker
-          mkdir -p $DOCKER_CONFIG
 
           aws ecr get-login-password --region $AWS_REGION \
           | docker login \
