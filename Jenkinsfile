@@ -99,10 +99,10 @@ pipeline {
           sh '''
             aws sts get-caller-identity
 
-            aws ecr get-login-password --region $AWS_REGION \
+            aws ecr get-login-password --region us-east-2 \
             | docker login \
               --username AWS \
-              --password-stdin $ECR_ACCOUNT.dkr.ecr.$AWS_REGION.amazonaws.com
+              --password-stdin 278584440734.dkr.ecr.us-east-2.amazonaws.com
 
             docker build -t $ECR_REPO:$IMAGE_TAG .
             docker push $ECR_REPO:$IMAGE_TAG
