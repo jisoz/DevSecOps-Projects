@@ -139,16 +139,20 @@ pipeline {
     }
 
     /* ---------------- PREPARE IMAGE TAG ---------------- */
-    stage('Prepare Image Tag') {
-      when { expression { env.ENV != 'pr' } }
-      steps {
-        script {
-          def shortCommit = env.GIT_COMMIT.take(7)
-          env.IMAGE_TAG = "${env.BRANCH_NAME}-${shortCommit}-${env.BUILD_NUMBER}"
-        }
-        echo "Image tag: ${env.IMAGE_TAG}"
-      }
+   stage('Prepare Image Tag') {
+  when { expression { env.ENV != 'pr' } }
+  steps {
+    script {
+      def shortCommit = env.GIT_COMMIT.take(7)
+
+      // Sanitize branch name for Docker tag
+      def safeBranch = env.BRANCH_NAME.replaceAll('/', '-')
+
+      env.IMAGE_TAG = "${safeBranch}-${shortCommit}-${env.BUILD_NUMBER}"
     }
+    echo "Image tag: ${env.IMAGE_TAG}"
+  }
+}
 
     /* ---------------- BUILD & PUSH TO ECR ---------------- */
 stage('Build & Push Images') {
