@@ -3,10 +3,11 @@ name: Build & Push Images
 on:
   push:
     branches:
-      - main
-      - release/**
-      - feature/**
-      - hotfix/**
+      - '**'
+      # - main
+      # - release/**
+      # - feature/**
+      # - hotfix/**
   workflow_dispatch:
 
 jobs:
