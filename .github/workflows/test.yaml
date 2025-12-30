@@ -46,9 +46,14 @@ jobs:
 
   detect-changes:
     runs-on: ubuntu-latest
+    outputs: 
+        frontend: ${{ steps.filter.outputs.frontend }}
+        wallet: ${{ steps.filter.outputs.wallet }}
+        transactions: ${{ steps.filter.outputs.transactions }}
+       
     steps:
       - uses: actions/checkout@v4
-
+ 
       - id: filter
         uses: dorny/paths-filter@v3
         with:
