@@ -15,9 +15,31 @@ jobs:
           echo "REF=$GITHUB_REF"
           echo "EVENT=$GITHUB_EVENT_NAME"
 
-  build-test:
+  detect-env:
     runs-on: ubuntu-latest
+    outputs:
+      env: ${{ steps.env.outputs.env }}
     steps:
-      - uses: actions/checkout@v4
-      - run: |
-          echo "BUILD JOB RUNNING"
+      - id: env
+        run: |
+          BRANCH="${GITHUB_REF#refs/heads/}"
+
+          if [[ "$BRANCH" == "main" ]]; then
+            ENV=prod
+          elif [[ "$BRANCH" == release/* ]]; then
+            ENV=qa
+          elif [[ "$BRANCH" == hotfix/* ]]; then
+            ENV=prod
+          else
+            ENV=dev
+          fi
+
+          echo "Detected ENV=$ENV"
+          echo "env=$ENV" >> $GITHUB_OUTPUT
+
+  show-env:
+    runs-on: ubuntu-latest
+    needs: detect-env
+    steps:
+      - run: echo "ENV FROM PREVIOUS JOB = ${{ needs.detect-env.outputs.env }}"
+
