@@ -1,11 +1,11 @@
-name: CI DEBUG
+# name: CI DEBUG
 
-on:
-  push:
-  workflow_dispatch:
+# on:
+#   push:
+#   workflow_dispatch:
 
-jobs:
-  debug:
-    runs-on: ubuntu-latest
-    steps:
-      - run: echo "CI TRIGGERED"
+# jobs:
+#   debug:
+#     runs-on: ubuntu-latest
+#     steps:
+#       - run: echo "CI TRIGGERED"
