@@ -81,3 +81,16 @@ jobs:
         run: |
           IMAGE="frontend:${{ needs.detect-env.outputs.env }}-${GITHUB_SHA::7}"
           docker build -t $IMAGE digital-wallet-demo/frontend  
+
+      - name: Login registry
+        run: |
+          echo "${{ secrets.REGISTRY_PASSWORD }}" | docker login \
+            "${{ secrets.REGISTRY_URL }}" \
+            -u "${{ secrets.REGISTRY_USER }}" \
+            --password-stdin    
+
+      - name: Push image
+        run: |
+          docker tag frontend:${{ needs.detect-env.outputs.env }}-${GITHUB_SHA::7} \
+            ${{ secrets.REGISTRY_URL }}/frontend:${{ needs.detect-env.outputs.env }}-${GITHUB_SHA::7}
+          docker push ${{ secrets.REGISTRY_URL }}/frontend:${{ needs.detect-env.outputs.env }}-${GITHUB_SHA::7}      
