@@ -7,7 +7,7 @@ on:
       - release/**
       - feature/**
       - hotfix/**
-
+#testingggg
 jobs:
   detect-env:
     runs-on: ubuntu-latest
