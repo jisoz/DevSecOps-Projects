@@ -63,11 +63,12 @@ jobs:
           - frontend
           - wallet
           - transactions
-    if: github.ref != 'refs/heads/main' ||
+    if: |
+       github.ref != 'refs/heads/main' ||
        (
-        (matrix.service == 'frontend' && needs.detect-changes.outputs.frontend == 'true') ||
-        (matrix.service == 'wallet' && needs.detect-changes.outputs.wallet == 'true') ||
-        (matrix.service == 'transactions' && needs.detect-changes.outputs.transactions == 'true')
+         (matrix.service == 'frontend' && needs.detect-changes.outputs.frontend == 'true') ||
+         (matrix.service == 'wallet' && needs.detect-changes.outputs.wallet == 'true') ||
+         (matrix.service == 'transactions' && needs.detect-changes.outputs.transactions == 'true')
        )
      
 
