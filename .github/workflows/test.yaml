@@ -43,3 +43,24 @@ jobs:
     steps:
       - run: echo "ENV FROM PREVIOUS JOB = ${{ needs.detect-env.outputs.env }}"
 
+
+  detect-changes:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - id: filter
+        uses: dorny/paths-filter@v3
+        with:
+          filters: |
+            frontend:
+              - digital-wallet-demo/frontend/**
+            wallet:
+              - digital-wallet-demo/services/wallets/**
+            transactions:
+              - digital-wallet-demo/services/transactions/**
+
+      - run: |
+          echo "frontend=${{ steps.filter.outputs.frontend }}"
+          echo "wallet=${{ steps.filter.outputs.wallet }}"
+          echo "transactions=${{ steps.filter.outputs.transactions }}"
