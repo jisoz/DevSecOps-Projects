@@ -16,7 +16,7 @@ COPY --from=build /app/build /usr/share/nginx/html
 
 EXPOSE 8080
 # FROM nginx:alpine
-
+#testpipline
 # COPY --from=build /app/build /usr/share/nginx/html
 
 
