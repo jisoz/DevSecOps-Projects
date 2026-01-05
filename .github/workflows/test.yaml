@@ -104,7 +104,7 @@ jobs:
       - name: Build wallet image
         run: |
           IMAGE="wallet:${{ needs.detect-env.outputs.env }}-${GITHUB_SHA::7}"
-          docker build -t $IMAGE digital-wallet-demo/wallet  
+          docker build -t $IMAGE digital-wallet-demo/services/wallets  
 
       - name: Login registry
         run: |
