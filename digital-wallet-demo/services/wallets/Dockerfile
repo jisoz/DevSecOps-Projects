@@ -17,3 +17,4 @@ COPY --from=builder /app/migrations ./migrations/
 
 EXPOSE 8081
 CMD ["./main", "server", "--config", "config.docker.yaml"]
+#erfe3irjf
