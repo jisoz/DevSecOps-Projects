@@ -11,7 +11,7 @@ postgreSQL:
   port: 5432
   user: postgres
   password: postgres
-  dbname: postgres
+  dbname: wallet
   sslmode: disable
 
 redis:

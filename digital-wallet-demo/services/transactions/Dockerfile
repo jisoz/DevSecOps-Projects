@@ -19,6 +19,8 @@ EXPOSE 8082
 CMD ["./main", "server", "--config", "config.docker.yaml"]
 
 
+#hfdefhehfehf
+
 # FROM golang:1.24-alpine
 # → Start from lightweight Go image to build the app.
 

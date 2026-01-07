@@ -121,3 +121,16 @@ volumes:
 networks:
   microservices-network:
     driver: bridge
+
+
+
+
+# Host machine:
+# ┌─────────────────────────────────────┐
+# │  Docker Compose Network             │
+# │                                     │
+# │  Kong:8000 ───→ wallet-app:8081    │ ← Kong can access 8081 internally
+# │                                     │
+# │  You:1314 ─────→ wallet-app:1314   │ ← You access 1314 from host
+# │                                     │
+# │  (Both work inside Docker network!)    
