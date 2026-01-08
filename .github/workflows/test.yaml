@@ -53,10 +53,13 @@ jobs:
        
     steps:
       - uses: actions/checkout@v4
- 
+        with:
+         fetch-depth: 0
+
       - id: filter
         uses: dorny/paths-filter@v3
         with:
+          base-ref: ${{ github.event.before }}
           filters: |
             frontend:
               - digital-wallet-demo/frontend/**
